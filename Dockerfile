@@ -1,20 +1,15 @@
-# Use a base image with your desired Linux distribution
-FROM ubuntu:latest
+# Use a base image that supports systemd, for example, Ubuntu
+FROM ubuntu:20.04
 
-# Install necessary dependencies
-RUN apt-get update && apt-get install -y \
-    sudo \
-    curl \
-    bash
+# Install necessary packages
+RUN apt-get update && \
+    apt-get install -y shellinabox && \
+    apt-get install -y systemd && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN echo 'root:root' | chpasswd
+# Expose the web-based terminal port
+EXPOSE 4200
 
-# Switch to root user
-USER root
-
-# Download and run the installation script
-RUN curl -Ls https://raw.githubusercontent.com/vaxilu/x-ui/master/install.sh | bash
-
-# Expose any necessary ports
-# EXPOSE <port_number>
-
-# Set the default command to run your application
-# CMD ["/path/to/your/application"]
+# Start shellinabox
+CMD ["/usr/bin/shellinaboxd", "-t", "-s", "/:LOGIN"]
